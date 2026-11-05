@@ -1,2 +1,30 @@
-/* Estilos globais da página. Os estilos de cada componente ficam na pasta
-   do componente. */
+/* Ordem: fontes, normalize, depois os estilos globais da página.
+   Os estilos de cada componente ficam na pasta do componente. */
+@import url('./vendor/fonts/fonts.css');
+@import url('./vendor/normalize.css');
+
+/* Cores e famílias do Figma num lugar só. As fontes do sistema depois de
+   cada família são a reserva caso o arquivo da fonte não carregue. */
+:root {
+  --color-text: #1a1b22;
+  --color-text-secondary: #b6bcbf;
+  --color-background: #fff;
+  --color-background-alt: #f5f6f7;
+  --color-divider: #d1d2d6;
+  --color-accent: #2f71e5;
+  --color-accent-hover: #347eff;
+  --color-button-hover: #e8e8e8;
+
+  --font-main: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  --font-title: 'Roboto Slab', Georgia, 'Times New Roman', serif;
+  --font-form: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-date: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  min-width: 320px;
+  font-family: var(--font-main);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+}

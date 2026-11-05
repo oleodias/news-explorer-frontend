@@ -1,0 +1,74 @@
+/* Fontes do layout, em WOFF2 (menor, navegadores atuais) com WOFF de reserva.
+   Só o subconjunto latino, que já inclui os acentos do português.
+   font-display: swap mostra o texto com a fonte do sistema enquanto a
+   fonte do layout carrega, em vez de deixar a página sem texto. */
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('./roboto-latin-400-normal.woff2') format('woff2'),
+    url('./roboto-latin-400-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src:
+    url('./roboto-latin-500-normal.woff2') format('woff2'),
+    url('./roboto-latin-500-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src:
+    url('./roboto-latin-900-normal.woff2') format('woff2'),
+    url('./roboto-latin-900-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('./roboto-slab-latin-400-normal.woff2') format('woff2'),
+    url('./roboto-slab-latin-400-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Roboto Slab';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    url('./roboto-slab-latin-700-normal.woff2') format('woff2'),
+    url('./roboto-slab-latin-700-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('./inter-latin-400-normal.woff2') format('woff2'),
+    url('./inter-latin-400-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    url('./source-sans-pro-latin-400-normal.woff2') format('woff2'),
+    url('./source-sans-pro-latin-400-normal.woff') format('woff');
+}
