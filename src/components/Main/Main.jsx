@@ -1,6 +1,14 @@
-// Página principal: busca, resultados e "Sobre o autor" (cartões 4 a 7).
-function Main() {
-  return <main className='main' />;
+import SearchForm from '../SearchForm/SearchForm.jsx';
+import About from '../About/About.jsx';
+
+// Página principal: busca, resultados (cartões 6 e 7) e "Sobre o autor".
+function Main({ onSearch }) {
+  return (
+    <main className='main'>
+      <SearchForm onSearch={onSearch} />
+      <About />
+    </main>
+  );
 }
 
 export default Main;
