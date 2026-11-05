@@ -18,6 +18,12 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser] = useState({ name: 'Leonardo' });
 
+  // Estado da busca (cartão 10 liga à News API).
+  const [searchStatus] = useState('idle');
+  const [articles] = useState([]);
+  const [keyword] = useState('');
+  const [savedArticles] = useState([]);
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,9 +40,14 @@ function App() {
     navigate('/');
   }
 
-  function handleSearch(keyword) {
+  function handleSearch(newKeyword) {
     // A busca na News API entra no cartão 10.
-    console.log(keyword);
+    console.log(newKeyword);
+  }
+
+  function handleSaveClick(article) {
+    // Salvar artigos depende do back-end (Fases 2 e 3).
+    console.log(article.link);
   }
 
   return (
@@ -49,7 +60,20 @@ function App() {
         onSignOut={handleSignOut}
       />
       <Routes>
-        <Route path='/' element={<Main onSearch={handleSearch} />} />
+        <Route
+          path='/'
+          element={
+            <Main
+              articles={articles}
+              isLoggedIn={isLoggedIn}
+              keyword={keyword}
+              savedArticles={savedArticles}
+              searchStatus={searchStatus}
+              onSaveClick={handleSaveClick}
+              onSearch={handleSearch}
+            />
+          }
+        />
         <Route path='/saved-news' element={<SavedNews />} />
         <Route path='*' element={<Navigate to='/' replace />} />
       </Routes>
