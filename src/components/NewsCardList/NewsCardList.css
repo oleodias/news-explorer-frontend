@@ -1,0 +1,54 @@
+/* Grade de 3 colunas; no celular, uma coluna. */
+.news-card-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.news-card-list__more {
+  display: block;
+  width: 288px;
+  height: 64px;
+  margin: 64px auto 0;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--color-text);
+  cursor: pointer;
+  background-color: #fff;
+  border: none;
+  border-radius: 80px;
+  transition: background-color 0.3s;
+}
+
+.news-card-list__more:hover {
+  background-color: var(--color-button-hover);
+}
+
+@media screen and (max-width: 1023px) {
+  .news-card-list {
+    gap: 8px;
+  }
+
+  .news-card-list__more {
+    width: 240px;
+    height: 56px;
+    margin-top: 32px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .news-card-list {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .news-card-list__more {
+    width: 100%;
+    margin-top: 16px;
+  }
+}
