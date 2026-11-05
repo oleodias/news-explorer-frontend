@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Variáveis de ambiente (a chave da News API)
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
