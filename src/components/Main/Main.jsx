@@ -24,7 +24,11 @@ function Main({
 }) {
   return (
     <main className='main'>
-      <SearchForm onSearch={onSearch} />
+      <SearchForm
+        initialKeyword={keyword}
+        isLoading={searchStatus === 'loading'}
+        onSearch={onSearch}
+      />
       {searchStatus === 'loading' && <Preloader />}
       {searchStatus === 'not-found' && (
         <NotFound message={NOT_FOUND_MESSAGE} title={NOT_FOUND_TITLE} />

@@ -59,6 +59,10 @@
   color: var(--color-text-secondary);
 }
 
+.search-form__input_invalid::placeholder {
+  color: #f00;
+}
+
 /* O campo não tem borda própria: no foco, o contorno é desenhado no
    formulário inteiro, que é a "caixa" que o usuário enxerga. */
 .search-form:focus-within {
@@ -87,6 +91,14 @@
 
 .search-form__button:active {
   background-color: #2a65cc;
+}
+
+/* Desativado enquanto a busca anterior não volta, para não disparar duas
+   requisições seguidas. */
+.search-form__button:disabled {
+  cursor: default;
+  background-color: var(--color-accent);
+  opacity: 0.6;
 }
 
 @media screen and (max-width: 1023px) {

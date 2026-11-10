@@ -13,7 +13,19 @@ import Footer from '../Footer/Footer.jsx';
 import LoginPopup from '../LoginPopup/LoginPopup.jsx';
 import RegisterPopup from '../RegisterPopup/RegisterPopup.jsx';
 import InfoPopup from '../InfoPopup/InfoPopup.jsx';
+import { getArticles } from '../../utils/NewsApi.js';
+import { SEARCH_STORAGE_KEY } from '../../utils/constants.js';
 import './App.css';
+
+// A última busca guardada no localStorage, ou null. O try protege contra
+// um valor corrompido (JSON.parse lançaria um erro e a página não abriria).
+function getStoredSearch() {
+  try {
+    return JSON.parse(localStorage.getItem(SEARCH_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
 
 function App() {
   // Fase 1: o login ainda não fala com a API (isso é a Fase 3). O estado
@@ -21,11 +33,16 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser] = useState({ name: 'Leonardo' });
 
-  // Estado da busca (cartão 10 liga à News API).
-  const [searchStatus] = useState('idle');
-  const [articles] = useState([]);
-  const [keyword] = useState('');
-  const [savedArticles] = useState([]);
+  // A busca começa com o que estiver guardado no localStorage: ao reabrir a
+  // aba, os resultados voltam já na montagem do App. A função passada ao
+  // useState roda só no primeiro render, e não a cada atualização.
+  const [storedSearch] = useState(getStoredSearch);
+  const [searchStatus, setSearchStatus] = useState(
+    storedSearch ? 'success' : 'idle',
+  );
+  const [articles, setArticles] = useState(storedSearch?.articles ?? []);
+  const [keyword, setKeyword] = useState(storedSearch?.keyword ?? '');
+  const [savedArticles, setSavedArticles] = useState([]);
 
   // Qual pop-up está aberto: null, 'login', 'register' ou 'success'. Um só
   // estado garante que nunca haja dois abertos ao mesmo tempo.
@@ -70,8 +87,26 @@ function App() {
   }
 
   function handleSearch(newKeyword) {
-    // A busca na News API entra no cartão 10.
-    console.log(newKeyword);
+    setKeyword(newKeyword);
+    setSearchStatus('loading');
+
+    getArticles(newKeyword)
+      .then((foundArticles) => {
+        setArticles(foundArticles);
+        setSearchStatus(foundArticles.length > 0 ? 'success' : 'not-found');
+        // Só uma busca com resultados é guardada para a próxima visita.
+        if (foundArticles.length > 0) {
+          localStorage.setItem(
+            SEARCH_STORAGE_KEY,
+            JSON.stringify({ keyword: newKeyword, articles: foundArticles }),
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setArticles([]);
+        setSearchStatus('error');
+      });
   }
 
   function handleSaveClick(article) {
@@ -80,8 +115,20 @@ function App() {
       setActivePopup('register');
       return;
     }
-    // Salvar de verdade depende do back-end (Fases 2 e 3).
-    console.log(article.link);
+    // Fase 1: salvar e remover só no estado (some ao recarregar). Na Fase
+    // 3 as duas ações passam a chamar a API própria.
+    const isSaved = savedArticles.some((saved) => saved.link === article.link);
+    if (isSaved) {
+      handleDeleteClick(article);
+    } else {
+      setSavedArticles([article, ...savedArticles]);
+    }
+  }
+
+  function handleDeleteClick(article) {
+    setSavedArticles(
+      savedArticles.filter((saved) => saved.link !== article.link),
+    );
   }
 
   return (
@@ -108,7 +155,16 @@ function App() {
             />
           }
         />
-        <Route path='/saved-news' element={<SavedNews />} />
+        <Route
+          path='/saved-news'
+          element={
+            <SavedNews
+              savedArticles={savedArticles}
+              userName={currentUser.name}
+              onDeleteClick={handleDeleteClick}
+            />
+          }
+        />
         <Route path='*' element={<Navigate to='/' replace />} />
       </Routes>
       <Footer />

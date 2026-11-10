@@ -1,19 +1,31 @@
 import { useState } from 'react';
+import { EMPTY_KEYWORD_MESSAGE } from '../../utils/constants.js';
 import './SearchForm.css';
 
 // O bloco da foto: título, subtítulo e o formulário de busca. O formulário
 // só guarda o que está sendo digitado; o que fazer com a palavra-chave é
 // decidido no App (onSearch), que faz a requisição à News API.
-function SearchForm({ onSearch }) {
-  const [keyword, setKeyword] = useState('');
+function SearchForm({ initialKeyword, isLoading, onSearch }) {
+  // Começa com a palavra da última busca (vinda do localStorage pelo App).
+  const [keyword, setKeyword] = useState(initialKeyword);
+  const [isEmptyError, setIsEmptyError] = useState(false);
 
   function handleKeywordChange(evt) {
     setKeyword(evt.target.value);
+    setIsEmptyError(false);
   }
 
+  // Campo vazio (ou só espaços): a busca não sai, e o aviso aparece no
+  // próprio campo, como no estado de erro do layout.
   function handleSubmit(evt) {
     evt.preventDefault();
-    onSearch(keyword.trim());
+    const trimmedKeyword = keyword.trim();
+    if (!trimmedKeyword) {
+      setKeyword('');
+      setIsEmptyError(true);
+      return;
+    }
+    onSearch(trimmedKeyword);
   }
 
   return (
@@ -26,15 +38,22 @@ function SearchForm({ onSearch }) {
         </p>
         <form className='search-form' noValidate onSubmit={handleSubmit}>
           <input
+            aria-invalid={isEmptyError}
             aria-label='Tema da busca'
-            className='search-form__input'
+            className={`search-form__input ${
+              isEmptyError ? 'search-form__input_invalid' : ''
+            }`}
             name='keyword'
-            placeholder='Inserir tema'
+            placeholder={isEmptyError ? EMPTY_KEYWORD_MESSAGE : 'Inserir tema'}
             type='text'
             value={keyword}
             onChange={handleKeywordChange}
           />
-          <button className='search-form__button' type='submit'>
+          <button
+            className='search-form__button'
+            disabled={isLoading}
+            type='submit'
+          >
             Procurar
           </button>
         </form>
