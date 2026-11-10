@@ -10,6 +10,9 @@ import Header from '../Header/Header.jsx';
 import Main from '../Main/Main.jsx';
 import SavedNews from '../SavedNews/SavedNews.jsx';
 import Footer from '../Footer/Footer.jsx';
+import LoginPopup from '../LoginPopup/LoginPopup.jsx';
+import RegisterPopup from '../RegisterPopup/RegisterPopup.jsx';
+import InfoPopup from '../InfoPopup/InfoPopup.jsx';
 import './App.css';
 
 function App() {
@@ -24,15 +27,41 @@ function App() {
   const [keyword] = useState('');
   const [savedArticles] = useState([]);
 
+  // Qual pop-up está aberto: null, 'login', 'register' ou 'success'. Um só
+  // estado garante que nunca haja dois abertos ao mesmo tempo.
+  const [activePopup, setActivePopup] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate();
 
   // Na principal o cabeçalho é claro, sobre a foto; na de salvos, escuro.
   const headerTheme = location.pathname === '/saved-news' ? 'dark' : 'light';
 
-  // Provisório: o pop-up de login entra no cartão 8.
   function handleSignInClick() {
+    setActivePopup('login');
+  }
+
+  function handleClosePopup() {
+    setActivePopup(null);
+  }
+
+  function handleSwitchToRegister() {
+    setActivePopup('register');
+  }
+
+  function handleSwitchToLogin() {
+    setActivePopup('login');
+  }
+
+  // Fase 1: login e cadastro ainda sem a API própria (Fase 3). O login só
+  // troca o cabeçalho; o cadastro mostra o aviso de sucesso.
+  function handleLogin() {
     setIsLoggedIn(true);
+    setActivePopup(null);
+  }
+
+  function handleRegister() {
+    setActivePopup('success');
   }
 
   function handleSignOut() {
@@ -46,7 +75,12 @@ function App() {
   }
 
   function handleSaveClick(article) {
-    // Salvar artigos depende do back-end (Fases 2 e 3).
+    // Deslogado, o clique em salvar abre o cadastro (pedido do checklist).
+    if (!isLoggedIn) {
+      setActivePopup('register');
+      return;
+    }
+    // Salvar de verdade depende do back-end (Fases 2 e 3).
     console.log(article.link);
   }
 
@@ -78,6 +112,26 @@ function App() {
         <Route path='*' element={<Navigate to='/' replace />} />
       </Routes>
       <Footer />
+      {activePopup === 'login' && (
+        <LoginPopup
+          onClose={handleClosePopup}
+          onLogin={handleLogin}
+          onSwitchToRegister={handleSwitchToRegister}
+        />
+      )}
+      {activePopup === 'register' && (
+        <RegisterPopup
+          onClose={handleClosePopup}
+          onRegister={handleRegister}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
+      {activePopup === 'success' && (
+        <InfoPopup
+          onClose={handleClosePopup}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
+      )}
     </div>
   );
 }
