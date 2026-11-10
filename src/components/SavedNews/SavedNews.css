@@ -1,0 +1,22 @@
+.saved-news__cards {
+  padding: 62px 104px;
+  background-color: var(--color-background-alt);
+}
+
+@media screen and (max-width: 1279px) {
+  .saved-news__cards {
+    padding: 62px 40px;
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  .saved-news__cards {
+    padding: 32px 40px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .saved-news__cards {
+    padding: 24px 16px;
+  }
+}
