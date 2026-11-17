@@ -27,6 +27,15 @@ function getStoredSearch() {
   }
 }
 
+// O estado inicial da busca a partir do que foi guardado: nada guardado é
+// 'idle'; com artigos é 'success'; uma busca sem artigos é 'not-found'.
+function getInitialStatus(storedSearch) {
+  if (!storedSearch) {
+    return 'idle';
+  }
+  return storedSearch.articles?.length > 0 ? 'success' : 'not-found';
+}
+
 function App() {
   // Fase 1: o login ainda não fala com a API (isso é a Fase 3). O estado
   // existe para montar as duas versões do cabeçalho e a página de salvos.
@@ -36,9 +45,11 @@ function App() {
   // A busca começa com o que estiver guardado no localStorage: ao reabrir a
   // aba, os resultados voltam já na montagem do App. A função passada ao
   // useState roda só no primeiro render, e não a cada atualização.
+  // Uma busca guardada sem artigos volta como "Nada encontrado", e não
+  // como a busca anterior a ela.
   const [storedSearch] = useState(getStoredSearch);
   const [searchStatus, setSearchStatus] = useState(
-    storedSearch ? 'success' : 'idle',
+    getInitialStatus(storedSearch),
   );
   const [articles, setArticles] = useState(storedSearch?.articles ?? []);
   const [keyword, setKeyword] = useState(storedSearch?.keyword ?? '');
@@ -94,13 +105,15 @@ function App() {
       .then((foundArticles) => {
         setArticles(foundArticles);
         setSearchStatus(foundArticles.length > 0 ? 'success' : 'not-found');
-        // Só uma busca com resultados é guardada para a próxima visita.
-        if (foundArticles.length > 0) {
-          localStorage.setItem(
-            SEARCH_STORAGE_KEY,
-            JSON.stringify({ keyword: newKeyword, articles: foundArticles }),
-          );
-        }
+        // Toda busca que a API respondeu é guardada, mesmo sem artigos.
+        // Se só as buscas com resultado fossem gravadas, uma busca vazia
+        // não substituiria a anterior, e ao recarregar a página a busca
+        // antiga reapareceria. Com erro de conexão não há busca concluída,
+        // então o que estava guardado fica como está.
+        localStorage.setItem(
+          SEARCH_STORAGE_KEY,
+          JSON.stringify({ keyword: newKeyword, articles: foundArticles }),
+        );
       })
       .catch((error) => {
         console.error(error);
