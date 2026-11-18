@@ -1,0 +1,133 @@
+.popup-form__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 28px;
+  color: var(--color-text);
+}
+
+.popup-form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 22px;
+}
+
+/* Um campo: rótulo azul, o input sublinhado e o espaço do erro, que
+   existe mesmo vazio para o formulário não pular quando um erro aparece. */
+.popup-form__field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  font-family: var(--font-form);
+}
+
+.popup-form__label {
+  font-size: 12px;
+  line-height: 14px;
+  color: var(--color-accent);
+}
+
+.popup-form__input {
+  box-sizing: border-box;
+  height: 33px;
+  padding: 0;
+  margin-top: 0;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 17px;
+  color: #000;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.popup-form__input::placeholder {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.popup-form__input:focus {
+  border-bottom-color: var(--color-text);
+}
+
+.popup-form__input_invalid,
+.popup-form__input_invalid:focus {
+  border-bottom-color: #f00;
+}
+
+.popup-form__error {
+  min-height: 14px;
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 14px;
+  color: #f00;
+}
+
+.popup-form__server-error {
+  min-height: 14px;
+  margin: 6px 0 8px;
+  font-family: var(--font-form);
+  font-size: 12px;
+  line-height: 14px;
+  color: #f00;
+  text-align: center;
+}
+
+.popup-form__submit {
+  height: 64px;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #fff;
+  cursor: pointer;
+  background-color: var(--color-accent);
+  border: none;
+  border-radius: 100px;
+  transition: background-color 0.3s;
+}
+
+.popup-form__submit:hover {
+  background-color: var(--color-accent-hover);
+}
+
+.popup-form__submit:disabled {
+  color: var(--color-text-secondary);
+  cursor: default;
+  background-color: #e6e8eb;
+}
+
+.popup-form__alt {
+  margin: 16px 0 0;
+  font-family: var(--font-form);
+  font-size: 14px;
+  line-height: 17px;
+  color: #000;
+  text-align: center;
+}
+
+.popup-form__alt-link {
+  padding: 0;
+  font: inherit;
+  color: var(--color-accent);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: opacity 0.3s;
+}
+
+.popup-form__alt-link:hover {
+  opacity: 0.7;
+}
+
+@media screen and (max-width: 600px) {
+  .popup-form__title {
+    font-size: 24px;
+  }
+
+  .popup-form {
+    margin-top: 18px;
+  }
+}

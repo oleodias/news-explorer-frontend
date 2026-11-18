@@ -1,0 +1,67 @@
+.popup {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* No layout as caixas ficam um pouco abaixo do centro da tela. */
+.popup__container {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 430px;
+  padding: 34px 36px 28px;
+  margin-top: 72px;
+  background-color: #fff;
+  border-radius: 16px;
+}
+
+/* O X fica fora da caixa, no canto de cima à direita. */
+.popup__close {
+  position: absolute;
+  top: -46px;
+  right: -46px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  cursor: pointer;
+  background: url('../../images/close.svg') center / 40px no-repeat;
+  border: none;
+  transition: opacity 0.3s;
+}
+
+.popup__close:hover {
+  opacity: 0.6;
+}
+
+@media screen and (max-width: 600px) {
+  /* No celular a caixa ocupa a largura toda, colada embaixo do cabeçalho,
+     e o X vai para o lugar do botão de menu. */
+  .popup {
+    align-items: flex-start;
+    padding: 56px 0 0;
+  }
+
+  .popup__container {
+    max-width: none;
+    min-height: 100%;
+    padding: 16px 16px 24px;
+    margin-top: 0;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .popup__close {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 24px;
+    height: 24px;
+    background-size: 24px;
+  }
+}

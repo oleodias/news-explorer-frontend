@@ -1,0 +1,115 @@
+.header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 80px;
+  padding: 0 104px;
+}
+
+/* Na página principal o cabeçalho fica por cima da foto da busca: posição
+   absoluta dentro da página (.page é relative), sem fundo próprio. */
+.header_theme_light {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  color: #fff;
+}
+
+.header_theme_dark {
+  color: var(--color-text);
+  background-color: var(--color-background);
+  box-shadow: inset 0 -1px 0 var(--color-divider);
+}
+
+.header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header__logo {
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 24px;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+
+.header__logo:hover {
+  opacity: 0.7;
+}
+
+/* O botão do menu só aparece no celular (ver a media query abaixo). */
+.header__menu-button {
+  display: none;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.header__menu-icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.header__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+@media screen and (max-width: 1023px) {
+  .header {
+    height: 66px;
+    padding: 0 40px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .header {
+    display: block;
+    height: 56px;
+    padding: 0;
+  }
+
+  .header__bar {
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .header__logo {
+    font-size: 16px;
+  }
+
+  .header__menu-button {
+    display: block;
+  }
+
+  /* Com o menu aberto, a faixa do cabeçalho ganha fundo para o menu não
+     ficar transparente sobre a foto. */
+  .header_menu-open.header_theme_light .header__bar {
+    background-color: var(--color-text);
+  }
+
+  .header_menu-open.header_theme_dark .header__bar {
+    background-color: var(--color-background);
+  }
+
+  .header_menu-open .header__bar {
+    box-shadow: inset 0 -1px 0 rgba(196, 196, 196, 0.5);
+  }
+}

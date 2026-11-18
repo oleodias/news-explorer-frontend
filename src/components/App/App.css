@@ -1,0 +1,5 @@
+/* A página é o ponto de referência do cabeçalho da principal, que fica em
+   posição absoluta por cima da foto da busca. */
+.page {
+  position: relative;
+}
