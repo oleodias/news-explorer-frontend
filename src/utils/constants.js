@@ -45,3 +45,8 @@ export const UNAUTHORIZED_STATUS = 401;
 // desligado) e não há uma mensagem do servidor para mostrar.
 export const SERVER_ERROR_MESSAGE =
   'Algo deu errado. Verifique a conexão e tente novamente.';
+
+// Textos do pop-up de aviso.
+export const REGISTER_SUCCESS_MESSAGE = 'Cadastro concluído com sucesso!';
+export const SESSION_EXPIRED_MESSAGE =
+  'Sua sessão expirou. Entre de novo para continuar.';

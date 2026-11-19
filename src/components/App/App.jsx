@@ -17,13 +17,17 @@ import InfoPopup from '../InfoPopup/InfoPopup.jsx';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import { getArticles } from '../../utils/NewsApi.js';
 import {
+  deleteArticle,
   getCurrentUser,
   getSavedArticles,
+  saveArticle,
   signin,
   signup,
 } from '../../utils/MainApi.js';
 import {
   SEARCH_STORAGE_KEY,
+  REGISTER_SUCCESS_MESSAGE,
+  SESSION_EXPIRED_MESSAGE,
   TOKEN_STORAGE_KEY,
   UNAUTHORIZED_STATUS,
 } from '../../utils/constants.js';
@@ -84,6 +88,8 @@ function App() {
   // A mensagem de erro que o servidor mandou ao cadastrar ou entrar
   // ("Este e-mail já está cadastrado"), mostrada no formulário.
   const [serverError, setServerError] = useState('');
+  // O texto do pop-up de erro ('error'), quando salvar ou excluir falha.
+  const [requestErrorMessage, setRequestErrorMessage] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -211,30 +217,58 @@ function App() {
       });
   }
 
+  // Salvar ou excluir falhou: com o token vencido (401), a sessão acaba e
+  // o login abre; com qualquer outro erro, um aviso com a mensagem.
+  function handleRequestError(error) {
+    console.error(error);
+    if (error.status === UNAUTHORIZED_STATUS) {
+      handleSignOut();
+      setServerError(SESSION_EXPIRED_MESSAGE);
+      setActivePopup('login');
+      return;
+    }
+    setRequestErrorMessage(error.message);
+    openPopup('error');
+  }
+
   function handleSaveClick(article) {
     // Deslogado, o clique em salvar abre o cadastro (pedido do checklist).
     if (!isLoggedIn) {
       openPopup('register');
       return;
     }
-    // Fase 1: salvar e remover só no estado (some ao recarregar). Na Fase
-    // 3 as duas ações passam a chamar a API própria.
-    const isSaved = savedArticles.some((saved) => saved.link === article.link);
-    if (isSaved) {
-      handleDeleteClick(article);
-    } else {
-      setSavedArticles([article, ...savedArticles]);
-    }
-  }
-
-  function handleDeleteClick(article) {
-    setSavedArticles(
-      savedArticles.filter((saved) => saved.link !== article.link),
+    // Já salvo (mesmo link): o segundo clique no ícone exclui.
+    const savedArticle = savedArticles.find(
+      (saved) => saved.link === article.link,
     );
+    if (savedArticle) {
+      handleDeleteClick(savedArticle);
+      return;
+    }
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    // O artigo que volta do servidor tem o _id, usado depois para excluir.
+    // A forma (current) => ... usa a lista mais recente, mesmo que outra
+    // atualização tenha acontecido enquanto a requisição viajava.
+    saveArticle(article, token)
+      .then((newArticle) => {
+        setSavedArticles((current) => [newArticle, ...current]);
+      })
+      .catch(handleRequestError);
   }
 
-  // O Provider entrega o currentUser (estado do App) a todos os componentes
-  // de dentro dele, que o leem com useContext.
+  // Excluir pelo _id (o artigo da lista de salvos, que veio do servidor).
+  // O cartão só some depois que o servidor confirmou.
+  function handleDeleteClick(article) {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    deleteArticle(article._id, token)
+      .then(() => {
+        setSavedArticles((current) =>
+          current.filter((saved) => saved._id !== article._id),
+        );
+      })
+      .catch(handleRequestError);
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
@@ -294,8 +328,18 @@ function App() {
         )}
         {shownPopup === 'success' && (
           <InfoPopup
+            linkText='Entrar'
+            title={REGISTER_SUCCESS_MESSAGE}
             onClose={handleClosePopup}
-            onSwitchToLogin={handleSwitchToLogin}
+            onLinkClick={handleSwitchToLogin}
+          />
+        )}
+        {shownPopup === 'error' && (
+          <InfoPopup
+            linkText='Fechar'
+            title={requestErrorMessage}
+            onClose={handleClosePopup}
+            onLinkClick={handleClosePopup}
           />
         )}
       </div>
