@@ -9,7 +9,7 @@ import './Header.css';
 
 // theme: 'light' = textos brancos sobre a foto da página principal;
 // 'dark' = fundo branco e textos escuros, na página de artigos salvos.
-function Header({ theme, isLoggedIn, userName, onSignInClick, onSignOut }) {
+function Header({ theme, isLoggedIn, onSignInClick, onSignOut }) {
   // O menu só existe no celular: no desktop e no tablet a navegação aparece
   // inteira e este estado não tem efeito visível.
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,7 +57,6 @@ function Header({ theme, isLoggedIn, userName, onSignInClick, onSignOut }) {
         isLoggedIn={isLoggedIn}
         isMenuOpen={isMenuOpen}
         theme={theme}
-        userName={userName}
         onLinkClick={handleMenuClose}
         onSignInClick={onSignInClick}
         onSignOut={onSignOut}

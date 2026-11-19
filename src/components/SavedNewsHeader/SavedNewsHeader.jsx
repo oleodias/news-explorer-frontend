@@ -1,9 +1,12 @@
+import { useContext } from 'react';
+import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import { getKeywordsByPopularity, getSavedWord } from '../../utils/keywords.js';
 import './SavedNewsHeader.css';
 
 // Até 3 palavras-chave aparecem todas; com mais de 3, as 2 primeiras e
 // "e N outras" (como no layout).
-function SavedNewsHeader({ userName, savedArticles }) {
+function SavedNewsHeader({ savedArticles }) {
+  const { name: userName } = useContext(CurrentUserContext);
   const count = savedArticles.length;
   const keywords = getKeywordsByPopularity(savedArticles);
   const shownKeywords = keywords.length > 3 ? keywords.slice(0, 2) : keywords;

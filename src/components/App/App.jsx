@@ -13,6 +13,7 @@ import Footer from '../Footer/Footer.jsx';
 import LoginPopup from '../LoginPopup/LoginPopup.jsx';
 import RegisterPopup from '../RegisterPopup/RegisterPopup.jsx';
 import InfoPopup from '../InfoPopup/InfoPopup.jsx';
+import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import { getArticles } from '../../utils/NewsApi.js';
 import { SEARCH_STORAGE_KEY } from '../../utils/constants.js';
 import './App.css';
@@ -144,64 +145,66 @@ function App() {
     );
   }
 
+  // O Provider entrega o currentUser (estado do App) a todos os componentes
+  // de dentro dele, que o leem com useContext.
   return (
-    <div className='page'>
-      <Header
-        isLoggedIn={isLoggedIn}
-        theme={headerTheme}
-        userName={currentUser.name}
-        onSignInClick={handleSignInClick}
-        onSignOut={handleSignOut}
-      />
-      <Routes>
-        <Route
-          path='/'
-          element={
-            <Main
-              articles={articles}
-              isLoggedIn={isLoggedIn}
-              keyword={keyword}
-              savedArticles={savedArticles}
-              searchStatus={searchStatus}
-              onSaveClick={handleSaveClick}
-              onSearch={handleSearch}
-            />
-          }
+    <CurrentUserContext.Provider value={currentUser}>
+      <div className='page'>
+        <Header
+          isLoggedIn={isLoggedIn}
+          theme={headerTheme}
+          onSignInClick={handleSignInClick}
+          onSignOut={handleSignOut}
         />
-        <Route
-          path='/saved-news'
-          element={
-            <SavedNews
-              savedArticles={savedArticles}
-              userName={currentUser.name}
-              onDeleteClick={handleDeleteClick}
-            />
-          }
-        />
-        <Route path='*' element={<Navigate to='/' replace />} />
-      </Routes>
-      <Footer />
-      {activePopup === 'login' && (
-        <LoginPopup
-          onClose={handleClosePopup}
-          onLogin={handleLogin}
-          onSwitchToRegister={handleSwitchToRegister}
-        />
-      )}
-      {activePopup === 'register' && (
-        <RegisterPopup
-          onClose={handleClosePopup}
-          onRegister={handleRegister}
-          onSwitchToLogin={handleSwitchToLogin}
-        />
-      )}
-      {activePopup === 'success' && (
-        <InfoPopup
-          onClose={handleClosePopup}
-          onSwitchToLogin={handleSwitchToLogin}
-        />
-      )}
-    </div>
+        <Routes>
+          <Route
+            path='/'
+            element={
+              <Main
+                articles={articles}
+                isLoggedIn={isLoggedIn}
+                keyword={keyword}
+                savedArticles={savedArticles}
+                searchStatus={searchStatus}
+                onSaveClick={handleSaveClick}
+                onSearch={handleSearch}
+              />
+            }
+          />
+          <Route
+            path='/saved-news'
+            element={
+              <SavedNews
+                savedArticles={savedArticles}
+                onDeleteClick={handleDeleteClick}
+              />
+            }
+          />
+          <Route path='*' element={<Navigate to='/' replace />} />
+        </Routes>
+        <Footer />
+        {activePopup === 'login' && (
+          <LoginPopup
+            onClose={handleClosePopup}
+            onLogin={handleLogin}
+            onSwitchToRegister={handleSwitchToRegister}
+          />
+        )}
+        {activePopup === 'register' && (
+          <RegisterPopup
+            onClose={handleClosePopup}
+            onRegister={handleRegister}
+            onSwitchToLogin={handleSwitchToLogin}
+          />
+        )}
+        {activePopup === 'success' && (
+          <InfoPopup
+            onClose={handleClosePopup}
+            onSwitchToLogin={handleSwitchToLogin}
+          />
+        )}
+      </div>
+    </CurrentUserContext.Provider>
   );
 }
 
