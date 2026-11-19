@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Navigate,
   Route,
@@ -10,15 +10,22 @@ import Header from '../Header/Header.jsx';
 import Main from '../Main/Main.jsx';
 import SavedNews from '../SavedNews/SavedNews.jsx';
 import Footer from '../Footer/Footer.jsx';
+import ProtectedRoute from '../ProtectedRoute/ProtectedRoute.jsx';
 import LoginPopup from '../LoginPopup/LoginPopup.jsx';
 import RegisterPopup from '../RegisterPopup/RegisterPopup.jsx';
 import InfoPopup from '../InfoPopup/InfoPopup.jsx';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import { getArticles } from '../../utils/NewsApi.js';
-import { getCurrentUser, signin, signup } from '../../utils/MainApi.js';
+import {
+  getCurrentUser,
+  getSavedArticles,
+  signin,
+  signup,
+} from '../../utils/MainApi.js';
 import {
   SEARCH_STORAGE_KEY,
   TOKEN_STORAGE_KEY,
+  UNAUTHORIZED_STATUS,
 } from '../../utils/constants.js';
 import './App.css';
 
@@ -41,8 +48,19 @@ function getInitialStatus(storedSearch) {
   return storedSearch.articles?.length > 0 ? 'success' : 'not-found';
 }
 
+// Os dados de quem entrou e os artigos salvos, pedidos juntos: o
+// Promise.all espera as duas respostas (e rejeita se qualquer uma falhar).
+function getUserData(token) {
+  return Promise.all([getCurrentUser(token), getSavedArticles(token)]);
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // Enquanto o token guardado é conferido no servidor, ainda não se sabe se
+  // a pessoa está logada. Sem token, não há o que conferir: começa false.
+  const [isCheckingAuth, setIsCheckingAuth] = useState(() =>
+    Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
+  );
   // Os dados de quem está logado ({ name, email }), que o Provider entrega
   // aos componentes. Objeto vazio enquanto ninguém entrou.
   const [currentUser, setCurrentUser] = useState({});
@@ -73,11 +91,49 @@ function App() {
   // Na principal o cabeçalho é claro, sobre a foto; na de salvos, escuro.
   const headerTheme = location.pathname === '/saved-news' ? 'dark' : 'light';
 
+  // A rota protegida mandou para / porque a pessoa não estava logada (ver
+  // ProtectedRoute): enquanto o aviso estiver no state da navegação, o
+  // pop-up de login aparece. É um valor derivado, calculado a cada render,
+  // e não um estado a mais sincronizado por efeito.
+  const isLoginRequired = Boolean(location.state?.isLoginRequired);
+  const shownPopup = isLoginRequired ? 'login' : activePopup;
+
+  // Ao abrir (ou reabrir) a aba: se há um token guardado, ele é conferido
+  // no servidor e, se valer, a sessão volta com o nome e os artigos salvos.
+  // Roda uma vez só, na montagem do App (lista de dependências vazia).
+  useEffect(() => {
+    const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (!token) {
+      return;
+    }
+    getUserData(token)
+      .then(([user, userArticles]) => {
+        setCurrentUser(user);
+        setSavedArticles(userArticles);
+        setIsLoggedIn(true);
+      })
+      .catch((error) => {
+        console.error(error);
+        // Só um 401 (token vencido ou inválido) apaga o token. Se a API
+        // estiver fora do ar, o token continua para a próxima visita.
+        if (error.status === UNAUTHORIZED_STATUS) {
+          localStorage.removeItem(TOKEN_STORAGE_KEY);
+        }
+      })
+      .finally(() => setIsCheckingAuth(false));
+  }, []);
+
   // Toda troca de pop-up limpa o erro do servidor: a mensagem do login não
   // pode aparecer no cadastro, nem continuar lá ao reabrir.
   function openPopup(popupName) {
     setServerError('');
     setActivePopup(popupName);
+    // Fechar ou trocar o pop-up aberto pela rota protegida apaga o aviso
+    // do state da navegação (replace: sem criar outra entrada no
+    // histórico), senão o pop-up de login continuaria aberto.
+    if (isLoginRequired) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
   }
 
   function handleSignInClick() {
@@ -104,16 +160,17 @@ function App() {
       .catch((error) => setServerError(error.message));
   }
 
-  // Login: guarda o token, busca os dados de quem entrou e só então troca o
-  // cabeçalho e fecha o pop-up.
+  // Login: guarda o token, busca os dados de quem entrou e os artigos
+  // salvos, e só então troca o cabeçalho e fecha o pop-up.
   function handleLogin(values) {
     signin(values)
       .then(({ token }) => {
         localStorage.setItem(TOKEN_STORAGE_KEY, token);
-        return getCurrentUser(token);
+        return getUserData(token);
       })
-      .then((user) => {
+      .then(([user, userArticles]) => {
         setCurrentUser(user);
+        setSavedArticles(userArticles);
         setIsLoggedIn(true);
         openPopup(null);
       })
@@ -205,16 +262,21 @@ function App() {
           <Route
             path='/saved-news'
             element={
-              <SavedNews
-                savedArticles={savedArticles}
-                onDeleteClick={handleDeleteClick}
-              />
+              <ProtectedRoute
+                isCheckingAuth={isCheckingAuth}
+                isLoggedIn={isLoggedIn}
+              >
+                <SavedNews
+                  savedArticles={savedArticles}
+                  onDeleteClick={handleDeleteClick}
+                />
+              </ProtectedRoute>
             }
           />
           <Route path='*' element={<Navigate to='/' replace />} />
         </Routes>
         <Footer />
-        {activePopup === 'login' && (
+        {shownPopup === 'login' && (
           <LoginPopup
             serverError={serverError}
             onClose={handleClosePopup}
@@ -222,7 +284,7 @@ function App() {
             onSwitchToRegister={handleSwitchToRegister}
           />
         )}
-        {activePopup === 'register' && (
+        {shownPopup === 'register' && (
           <RegisterPopup
             serverError={serverError}
             onClose={handleClosePopup}
@@ -230,7 +292,7 @@ function App() {
             onSwitchToLogin={handleSwitchToLogin}
           />
         )}
-        {activePopup === 'success' && (
+        {shownPopup === 'success' && (
           <InfoPopup
             onClose={handleClosePopup}
             onSwitchToLogin={handleSwitchToLogin}

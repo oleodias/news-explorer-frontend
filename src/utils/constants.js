@@ -38,6 +38,9 @@ export const MAIN_API_BASE_URL = import.meta.env.DEV
 // Chave do localStorage onde fica o JWT depois do login.
 export const TOKEN_STORAGE_KEY = 'jwt';
 
+// Status de "não autorizado" da API (token vencido ou inválido).
+export const UNAUTHORIZED_STATUS = 401;
+
 // Mensagem genérica para quando a API não responde (rede fora, servidor
 // desligado) e não há uma mensagem do servidor para mostrar.
 export const SERVER_ERROR_MESSAGE =

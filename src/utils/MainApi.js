@@ -15,9 +15,13 @@ function checkResponse(res) {
   return res
     .json()
     .catch(() => ({})) // corpo que não é JSON (ex.: 502 do Nginx)
-    .then((body) =>
-      Promise.reject(new Error(body.message || SERVER_ERROR_MESSAGE)),
-    );
+    .then((body) => {
+      // O status vai junto no erro: o App precisa saber se foi um 401
+      // (token vencido ou inválido) ou outra falha.
+      const error = new Error(body.message || SERVER_ERROR_MESSAGE);
+      error.status = res.status;
+      return Promise.reject(error);
+    });
 }
 
 // Monta os cabeçalhos: JSON sempre; Authorization só quando há token.
