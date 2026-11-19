@@ -1,4 +1,5 @@
 import { formatDate } from '../../utils/date.js';
+import { capitalize } from '../../utils/keywords.js';
 import './NewsCard.css';
 
 // Um cartão de notícia. variant 'search' (resultados da busca: ícone de
@@ -63,7 +64,9 @@ function NewsCard({
           <p className='news-card__source'>{source}</p>
         </div>
       </a>
-      {isSavedVariant && <p className='news-card__keyword'>{keyword}</p>}
+      {isSavedVariant && (
+        <p className='news-card__keyword'>{capitalize(keyword)}</p>
+      )}
       <button
         aria-label={buttonLabel}
         className={`news-card__button ${buttonModifier}`}

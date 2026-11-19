@@ -1,6 +1,10 @@
 import { useContext } from 'react';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
-import { getKeywordsByPopularity, getSavedWord } from '../../utils/keywords.js';
+import {
+  capitalize,
+  getKeywordsByPopularity,
+  getSavedWord,
+} from '../../utils/keywords.js';
 import './SavedNewsHeader.css';
 
 // Até 3 palavras-chave aparecem todas; com mais de 3, as 2 primeiras e
@@ -29,7 +33,9 @@ function SavedNewsHeader({ savedArticles }) {
                 (index === shownKeywords.length - 1 && hiddenCount === 0
                   ? ' e '
                   : ', ')}
-              <strong className='saved-news-header__keyword'>{keyword}</strong>
+              <strong className='saved-news-header__keyword'>
+                {capitalize(keyword)}
+              </strong>
             </span>
           ))}
           {hiddenCount > 0 && (
