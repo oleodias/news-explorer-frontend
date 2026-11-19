@@ -15,7 +15,11 @@ import RegisterPopup from '../RegisterPopup/RegisterPopup.jsx';
 import InfoPopup from '../InfoPopup/InfoPopup.jsx';
 import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import { getArticles } from '../../utils/NewsApi.js';
-import { SEARCH_STORAGE_KEY } from '../../utils/constants.js';
+import { getCurrentUser, signin, signup } from '../../utils/MainApi.js';
+import {
+  SEARCH_STORAGE_KEY,
+  TOKEN_STORAGE_KEY,
+} from '../../utils/constants.js';
 import './App.css';
 
 // A última busca guardada no localStorage, ou null. O try protege contra
@@ -38,10 +42,10 @@ function getInitialStatus(storedSearch) {
 }
 
 function App() {
-  // Fase 1: o login ainda não fala com a API (isso é a Fase 3). O estado
-  // existe para montar as duas versões do cabeçalho e a página de salvos.
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser] = useState({ name: 'Leonardo' });
+  // Os dados de quem está logado ({ name, email }), que o Provider entrega
+  // aos componentes. Objeto vazio enquanto ninguém entrou.
+  const [currentUser, setCurrentUser] = useState({});
 
   // A busca começa com o que estiver guardado no localStorage: ao reabrir a
   // aba, os resultados voltam já na montagem do App. A função passada ao
@@ -59,6 +63,9 @@ function App() {
   // Qual pop-up está aberto: null, 'login', 'register' ou 'success'. Um só
   // estado garante que nunca haja dois abertos ao mesmo tempo.
   const [activePopup, setActivePopup] = useState(null);
+  // A mensagem de erro que o servidor mandou ao cadastrar ou entrar
+  // ("Este e-mail já está cadastrado"), mostrada no formulário.
+  const [serverError, setServerError] = useState('');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,34 +73,58 @@ function App() {
   // Na principal o cabeçalho é claro, sobre a foto; na de salvos, escuro.
   const headerTheme = location.pathname === '/saved-news' ? 'dark' : 'light';
 
+  // Toda troca de pop-up limpa o erro do servidor: a mensagem do login não
+  // pode aparecer no cadastro, nem continuar lá ao reabrir.
+  function openPopup(popupName) {
+    setServerError('');
+    setActivePopup(popupName);
+  }
+
   function handleSignInClick() {
-    setActivePopup('login');
+    openPopup('login');
   }
 
   function handleClosePopup() {
-    setActivePopup(null);
+    openPopup(null);
   }
 
   function handleSwitchToRegister() {
-    setActivePopup('register');
+    openPopup('register');
   }
 
   function handleSwitchToLogin() {
-    setActivePopup('login');
+    openPopup('login');
   }
 
-  // Fase 1: login e cadastro ainda sem a API própria (Fase 3). O login só
-  // troca o cabeçalho; o cadastro mostra o aviso de sucesso.
-  function handleLogin() {
-    setIsLoggedIn(true);
-    setActivePopup(null);
+  // Cadastro: sucesso abre o aviso "Cadastro concluído com sucesso!" (como
+  // no Figma), que tem o link para entrar.
+  function handleRegister(values) {
+    signup(values)
+      .then(() => openPopup('success'))
+      .catch((error) => setServerError(error.message));
   }
 
-  function handleRegister() {
-    setActivePopup('success');
+  // Login: guarda o token, busca os dados de quem entrou e só então troca o
+  // cabeçalho e fecha o pop-up.
+  function handleLogin(values) {
+    signin(values)
+      .then(({ token }) => {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+        return getCurrentUser(token);
+      })
+      .then((user) => {
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+        openPopup(null);
+      })
+      .catch((error) => setServerError(error.message));
   }
 
+  // Sair apaga o token: sem ele, a próxima visita começa deslogada.
   function handleSignOut() {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    setCurrentUser({});
+    setSavedArticles([]);
     setIsLoggedIn(false);
     navigate('/');
   }
@@ -126,7 +157,7 @@ function App() {
   function handleSaveClick(article) {
     // Deslogado, o clique em salvar abre o cadastro (pedido do checklist).
     if (!isLoggedIn) {
-      setActivePopup('register');
+      openPopup('register');
       return;
     }
     // Fase 1: salvar e remover só no estado (some ao recarregar). Na Fase
@@ -185,6 +216,7 @@ function App() {
         <Footer />
         {activePopup === 'login' && (
           <LoginPopup
+            serverError={serverError}
             onClose={handleClosePopup}
             onLogin={handleLogin}
             onSwitchToRegister={handleSwitchToRegister}
@@ -192,6 +224,7 @@ function App() {
         )}
         {activePopup === 'register' && (
           <RegisterPopup
+            serverError={serverError}
             onClose={handleClosePopup}
             onRegister={handleRegister}
             onSwitchToLogin={handleSwitchToLogin}
