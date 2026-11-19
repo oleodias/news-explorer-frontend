@@ -28,3 +28,17 @@ export const NEWS_PERIOD_DAYS = 7; // notícias da última semana
 export const SEARCH_STORAGE_KEY = 'news-explorer-search';
 
 export const EMPTY_KEYWORD_MESSAGE = 'Por favor, insira uma palavra-chave';
+
+// API própria (back-end da Etapa 2). No `npm run dev`, o back-end roda na
+// máquina, em localhost:3000; no build, o app chama a API publicada.
+export const MAIN_API_BASE_URL = import.meta.env.DEV
+  ? 'http://localhost:3000'
+  : 'https://api.leonews.kaiak.top';
+
+// Chave do localStorage onde fica o JWT depois do login.
+export const TOKEN_STORAGE_KEY = 'jwt';
+
+// Mensagem genérica para quando a API não responde (rede fora, servidor
+// desligado) e não há uma mensagem do servidor para mostrar.
+export const SERVER_ERROR_MESSAGE =
+  'Algo deu errado. Verifique a conexão e tente novamente.';
