@@ -37,7 +37,9 @@ function NewsCardList({
       <ul className='news-card-list'>
         {visibleArticles.map((article) => (
           <NewsCard
-            key={article.link}
+            // Salvos têm o _id do banco; resultados da busca ainda não, e o
+            // link é o que identifica cada notícia.
+            key={article._id ?? article.link}
             article={article}
             isLoggedIn={isLoggedIn}
             isSaved={checkIsSaved(article)}

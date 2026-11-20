@@ -4,10 +4,10 @@ import './SavedNews.css';
 
 // Página dos artigos salvos: a saudação com as palavras-chave e todos os
 // cartões salvos, cada um com a sua palavra-chave e a lixeira.
-function SavedNews({ userName, savedArticles, onDeleteClick }) {
+function SavedNews({ savedArticles, onDeleteClick }) {
   return (
     <main className='saved-news'>
-      <SavedNewsHeader savedArticles={savedArticles} userName={userName} />
+      <SavedNewsHeader savedArticles={savedArticles} />
       {savedArticles.length > 0 && (
         <section className='saved-news__cards'>
           <NewsCardList

@@ -1,4 +1,6 @@
+import { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
+import { CurrentUserContext } from '../../contexts/CurrentUserContext.js';
 import logoutIcon from '../../images/logout-white.svg';
 import logoutDarkIcon from '../../images/logout-dark.svg';
 import './Navigation.css';
@@ -7,11 +9,15 @@ function Navigation({
   theme,
   isLoggedIn,
   isMenuOpen,
-  userName,
   onLinkClick,
   onSignInClick,
   onSignOut,
 }) {
+  // O nome vem do contexto, e não de props: o Header não precisa saber
+  // quem está logado só para repassar o nome.
+  const currentUser = useContext(CurrentUserContext);
+  const userName = currentUser.name;
+
   // NavLink recebe uma função em className: o React Router informa se o
   // link é o da página atual, e a classe do sublinhado entra só nele.
   function getLinkClassName({ isActive }) {

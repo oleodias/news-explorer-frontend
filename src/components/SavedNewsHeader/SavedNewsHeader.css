@@ -26,7 +26,6 @@
 
 .saved-news-header__keyword {
   font-weight: 700;
-  text-transform: capitalize;
 }
 
 @media screen and (max-width: 1279px) {
